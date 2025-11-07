@@ -4,38 +4,62 @@
 Many of these descriptions and examples are taken from various resources (see [Acknowledgements](#acknowledgements) section) and summarized in my own words.
 
 C++11 includes the following new language features:
-- [move semantics](#move-semantics)
-- [variadic templates](#variadic-templates)
-- [rvalue references](#rvalue-references)
-- [forwarding references](#forwarding-references)
-- [initializer lists](#initializer-lists)
-- [static assertions](#static-assertions)
-- [auto](#auto)
-- [lambda expressions](#lambda-expressions)
-- [decltype](#decltype)
-- [type aliases](#type-aliases)
-- [nullptr](#nullptr)
-- [strongly-typed enums](#strongly-typed-enums)
-- [attributes](#attributes)
-- [constexpr](#constexpr)
-- [delegating constructors](#delegating-constructors)
-- [user-defined literals](#user-defined-literals)
-- [explicit virtual overrides](#explicit-virtual-overrides)
-- [final specifier](#final-specifier)
-- [default functions](#default-functions)
-- [deleted functions](#deleted-functions)
-- [range-based for loops](#range-based-for-loops)
-- [special member functions for move semantics](#special-member-functions-for-move-semantics)
-- [converting constructors](#converting-constructors)
-- [explicit conversion functions](#explicit-conversion-functions)
-- [inline-namespaces](#inline-namespaces)
-- [non-static data member initializers](#non-static-data-member-initializers)
-- [right angle brackets](#right-angle-brackets)
-- [ref-qualified member functions](#ref-qualified-member-functions)
-- [trailing return types](#trailing-return-types)
-- [noexcept specifier](#noexcept-specifier)
-- [char32_t and char16_t](#char32_t-and-char16_t)
-- [raw string literals](#raw-string-literals)
+- [C++11](#c11)
+  - [Overview](#overview)
+  - [C++11 Language Features](#c11-language-features)
+    - [移动语义（Move semantics）](#移动语义move-semantics)
+    - [右值引用（Rvalue references）](#右值引用rvalue-references)
+    - [转发引用（Forwarding references）](#转发引用forwarding-references)
+    - [可变参数模板（Variadic templates）](#可变参数模板variadic-templates)
+    - [初始化列表（Initializer lists）](#初始化列表initializer-lists)
+    - [静态断言（Static assertions）](#静态断言static-assertions)
+    - [auto](#auto)
+    - [Lambda expressions](#lambda-expressions)
+    - [decltype](#decltype)
+    - [Type aliases](#type-aliases)
+    - [nullptr](#nullptr)
+    - [Strongly-typed enums](#strongly-typed-enums)
+    - [Attributes](#attributes)
+    - [constexpr](#constexpr)
+    - [Delegating constructors](#delegating-constructors)
+    - [User-defined literals](#user-defined-literals)
+    - [Explicit virtual overrides](#explicit-virtual-overrides)
+    - [Final specifier](#final-specifier)
+    - [Default functions](#default-functions)
+    - [Deleted functions](#deleted-functions)
+    - [Range-based for loops](#range-based-for-loops)
+    - [移动语义的特殊成员函数（Special member functions for move semantics）](#移动语义的特殊成员函数special-member-functions-for-move-semantics)
+    - [Converting constructors](#converting-constructors)
+    - [Explicit conversion functions](#explicit-conversion-functions)
+    - [Inline namespaces](#inline-namespaces)
+    - [Non-static data member initializers](#non-static-data-member-initializers)
+    - [Right angle brackets](#right-angle-brackets)
+    - [Ref-qualified member functions](#ref-qualified-member-functions)
+    - [Trailing return types](#trailing-return-types)
+    - [Noexcept specifier](#noexcept-specifier)
+    - [char32\_t and char16\_t](#char32_t-and-char16_t)
+    - [Raw string literals](#raw-string-literals)
+  - [C++11 Library Features](#c11-library-features)
+    - [std::move](#stdmove)
+    - [std::forward](#stdforward)
+    - [std::thread](#stdthread)
+    - [std::to\_string](#stdto_string)
+    - [Type traits](#type-traits)
+    - [Smart pointers](#smart-pointers)
+    - [std::chrono](#stdchrono)
+    - [Tuples](#tuples)
+    - [std::tie](#stdtie)
+    - [std::array](#stdarray)
+    - [Unordered containers](#unordered-containers)
+    - [std::make\_shared](#stdmake_shared)
+    - [std::ref](#stdref)
+    - [Memory model](#memory-model)
+    - [std::async](#stdasync)
+    - [std::begin/end](#stdbeginend)
+  - [Acknowledgements](#acknowledgements)
+  - [Author](#author)
+  - [Content Contributors](#content-contributors)
+  - [License](#license)
 
 C++11 includes the following new library features:
 - [std::move](#stdmove)
@@ -57,84 +81,84 @@ C++11 includes the following new library features:
 
 ## C++11 Language Features
 
-### Move semantics
-Moving an object means to transfer ownership of some resource it manages to another object.
+### 移动语义（Move semantics）
+移动一个对象意味着将其管理的某些资源的所有权转移到另一个对象。
 
-The first benefit of move semantics is performance optimization. When an object is about to reach the end of its lifetime, either because it's a temporary or by explicitly calling `std::move`, a move is often a cheaper way to transfer resources. For example, moving a `std::vector` is just copying some pointers and internal state over to the new vector -- copying would involve having to copy every single contained element in the vector, which is expensive and unnecessary if the old vector will soon be destroyed.
+移动语义的第一个好处是性能优化。当一个对象即将到达其生命周期的末尾时，无论是因为它是一个临时对象，还是通过显式调用 `std::move`，移动通常是转移资源的更廉价的方式。例如，移动一个 `std::vector` 只是将一些指针和内部状态复制到新的 vector 中——而拷贝将涉及复制 vector 中的每个单独元素，如果旧 vector 很快就要被销毁，这既昂贵又不必要。
 
-Moves also make it possible for non-copyable types such as `std::unique_ptr`s ([smart pointers](#smart-pointers)) to guarantee at the language level that there is only ever one instance of a resource being managed at a time, while being able to transfer an instance between scopes.
+移动还使得不可拷贝的类型（如 `std::unique_ptr`（[智能指针](#smart-pointers)））能够在语言层面保证在任何时候只有一个资源实例被管理，同时能够在作用域之间转移实例。
 
-See the sections on: [rvalue references](#rvalue-references), [special member functions for move semantics](#special-member-functions-for-move-semantics), [`std::move`](#stdmove), [`std::forward`](#stdforward), [`forwarding references`](#forwarding-references).
+参见以下章节：[右值引用](#rvalue-references)、[移动语义的特殊成员函数](#special-member-functions-for-move-semantics)、[`std::move`](#stdmove)、[`std::forward`](#stdforward)、[转发引用](#forwarding-references)。
 
-### Rvalue references
-C++11 introduces a new reference termed the _rvalue reference_. An rvalue reference to `T`, which is a non-template type parameter (such as `int`, or a user-defined type), is created with the syntax `T&&`. Rvalue references only bind to rvalues.
+### 右值引用（Rvalue references）
+C++11 引入了一种新的引用，称为_右值引用_。对于非模板类型参数 `T`（如 `int` 或用户定义类型），右值引用使用语法 `T&&` 创建。右值引用只能绑定到右值。
 
-Type deduction with lvalues and rvalues:
+左值和右值的类型推导：
 ```c++
-int x = 0; // `x` is an lvalue of type `int`
-int& xl = x; // `xl` is an lvalue of type `int&`
-int&& xr = x; // compiler error -- `x` is an lvalue
-int&& xr2 = 0; // `xr2` is an lvalue of type `int&&` -- binds to the rvalue temporary, `0`
+int x = 0; // `x` 是类型为 `int` 的左值
+int& xl = x; // `xl` 是类型为 `int&` 的左值
+int&& xr = x; // 编译错误 -- `x` 是左值
+int&& xr2 = 0; // `xr2` 是类型为 `int&&` 的左值 -- 绑定到右值临时对象 `0`
 
 void f(int& x) {}
 void f(int&& x) {}
 
-f(x);  // calls f(int&)
-f(xl); // calls f(int&)
-f(3);  // calls f(int&&)
-f(std::move(x)); // calls f(int&&)
+f(x);  // 调用 f(int&)
+f(xl); // 调用 f(int&)
+f(3);  // 调用 f(int&&)
+f(std::move(x)); // 调用 f(int&&)
 
-f(xr2);           // calls f(int&)
-f(std::move(xr2)); // calls f(int&& x)
+f(xr2);           // 调用 f(int&)
+f(std::move(xr2)); // 调用 f(int&& x)
 ```
 
-See also: [`std::move`](#stdmove), [`std::forward`](#stdforward), [`forwarding references`](#forwarding-references).
+另请参阅：[`std::move`](#stdmove)、[`std::forward`](#stdforward)、[转发引用](#forwarding-references)。
 
-### Forwarding references
-Also known (unofficially) as _universal references_. A forwarding reference is created with the syntax `T&&` where `T` is a template type parameter, or using `auto&&`. This enables _perfect forwarding_: the ability to pass arguments while maintaining their value category (e.g. lvalues stay as lvalues, temporaries are forwarded as rvalues).
+### 转发引用（Forwarding references）
+也被（非正式地）称为_通用引用_。转发引用使用语法 `T&&` 创建，其中 `T` 是模板类型参数，或者使用 `auto&&`。这实现了_完美转发_：在保持参数值类别的同时传递参数的能力（例如，左值保持为左值，临时对象作为右值转发）。
 
-Forwarding references allow a reference to bind to either an lvalue or rvalue depending on the type. Forwarding references follow the rules of _reference collapsing_:
-* `T& &` becomes `T&`
-* `T& &&` becomes `T&`
-* `T&& &` becomes `T&`
-* `T&& &&` becomes `T&&`
+转发引用允许引用根据类型绑定到左值或右值。转发引用遵循_引用折叠_规则：
+* `T& &` 变为 `T&`
+* `T& &&` 变为 `T&`
+* `T&& &` 变为 `T&`
+* `T&& &&` 变为 `T&&`
 
-`auto` type deduction with lvalues and rvalues:
+使用 `auto` 进行左值和右值的类型推导：
 ```c++
-int x = 0; // `x` is an lvalue of type `int`
-auto&& al = x; // `al` is an lvalue of type `int&` -- binds to the lvalue, `x`
-auto&& ar = 0; // `ar` is an lvalue of type `int&&` -- binds to the rvalue temporary, `0`
+int x = 0; // `x` 是类型为 `int` 的左值
+auto&& al = x; // `al` 是类型为 `int&` 的左值 -- 绑定到左值 `x`
+auto&& ar = 0; // `ar` 是类型为 `int&&` 的左值 -- 绑定到右值临时对象 `0`
 ```
 
-Template type parameter deduction with lvalues and rvalues:
+使用模板类型参数进行左值和右值的类型推导：
 ```c++
-// Since C++14 or later:
+// 自 C++14 或更高版本起：
 void f(auto&& t) {
   // ...
 }
 
-// Since C++11 or later:
+// 自 C++11 或更高版本起：
 template <typename T>
 void f(T&& t) {
   // ...
 }
 
 int x = 0;
-f(0); // T is int, deduces as f(int &&) => f(int&&)
-f(x); // T is int&, deduces as f(int& &&) => f(int&)
+f(0); // T 是 int，推导为 f(int &&) => f(int&&)
+f(x); // T 是 int&，推导为 f(int& &&) => f(int&)
 
 int& y = x;
-f(y); // T is int&, deduces as f(int& &&) => f(int&)
+f(y); // T 是 int&，推导为 f(int& &&) => f(int&)
 
-int&& z = 0; // NOTE: `z` is an lvalue with type `int&&`.
-f(z); // T is int&, deduces as f(int& &&) => f(int&)
-f(std::move(z)); // T is int, deduces as f(int &&) => f(int&&)
+int&& z = 0; // 注意：`z` 是类型为 `int&&` 的左值。
+f(z); // T 是 int&，推导为 f(int& &&) => f(int&)
+f(std::move(z)); // T 是 int，推导为 f(int &&) => f(int&&)
 ```
 
-See also: [`std::move`](#stdmove), [`std::forward`](#stdforward), [`rvalue references`](#rvalue-references).
+另请参阅：[`std::move`](#stdmove)、[`std::forward`](#stdforward)、[右值引用](#rvalue-references)。
 
-### Variadic templates
-The `...` syntax creates a _parameter pack_ or expands one. A template _parameter pack_ is a template parameter that accepts zero or more template arguments (non-types, types, or templates). A template with at least one parameter pack is called a _variadic template_.
+### 可变参数模板（Variadic templates）
+`...` 语法用于创建或展开_参数包（parameter pack）_。模板的_参数包_可以接收零个或多个模板实参（非类型、类型或模板）。至少拥有一个参数包的模板称为_可变参数模板_。
 ```c++
 template <typename... T>
 struct arity {
@@ -144,7 +168,7 @@ static_assert(arity<>::value == 0);
 static_assert(arity<char, short, int>::value == 3);
 ```
 
-An interesting use for this is creating an _initializer list_ from a _parameter pack_ in order to iterate over variadic function arguments.
+一个有趣的用途是将_参数包_转成_初始化列表（initializer list）_，以便能够遍历可变参数函数的所有实参。
 ```c++
 template <typename First, typename... Args>
 auto sum(const First first, const Args... args) -> decltype(first) {
@@ -157,8 +181,8 @@ sum(1, 2, 3);       // 6
 sum(1.5, 2.0, 3.7); // 7.2
 ```
 
-### Initializer lists
-A lightweight array-like container of elements created using a "braced list" syntax. For example, `{ 1, 2, 3 }` creates a sequences of integers, that has type `std::initializer_list<int>`. Useful as a replacement to passing a vector of objects to a function.
+### 初始化列表（Initializer lists）
+使用“花括号列表”语法创建的轻量级类似数组的容器。例如 `{ 1, 2, 3 }` 会生成一个整数序列，其类型为 `std::initializer_list<int>`。它常被用来取代向函数传递 `std::vector` 的做法。
 ```c++
 int sum(const std::initializer_list<int>& list) {
   int total = 0;
@@ -175,8 +199,8 @@ sum({1, 2, 3}); // == 6
 sum({}); // == 0
 ```
 
-### Static assertions
-Assertions that are evaluated at compile-time.
+### 静态断言（Static assertions）
+在编译期就能求值的断言。
 ```c++
 constexpr int x = 0;
 constexpr int y = 1;
@@ -482,8 +506,8 @@ for (int x : a) x *= 2;
 // a == { 1, 2, 3, 4, 5 }
 ```
 
-### Special member functions for move semantics
-The copy constructor and copy assignment operator are called when copies are made, and with C++11's introduction of move semantics, there is now a move constructor and move assignment operator for moves.
+### 移动语义的特殊成员函数（Special member functions for move semantics）
+拷贝构造函数和拷贝赋值运算符在进行拷贝时被调用，而随着 C++11 引入移动语义，现在有了移动构造函数和移动赋值运算符用于移动。
 ```c++
 struct A {
   std::string s;
@@ -500,11 +524,11 @@ A f(A a) {
   return a;
 }
 
-A a1 = f(A{}); // move-constructed from rvalue temporary
-A a2 = std::move(a1); // move-constructed using std::move
+A a1 = f(A{}); // 从右值临时对象移动构造
+A a2 = std::move(a1); // 使用 std::move 移动构造
 A a3 = A{};
-a2 = std::move(a3); // move-assignment using std::move
-a1 = f(A{}); // move-assignment from rvalue temporary
+a2 = std::move(a3); // 使用 std::move 移动赋值
+a1 = f(A{}); // 从右值临时对象移动赋值
 ```
 
 ### Converting constructors
@@ -722,9 +746,9 @@ Hello,
 ## C++11 Library Features
 
 ### std::move
-`std::move` indicates that the object passed to it may have its resources transferred. Using objects that have been moved from should be used with care, as they can be left in an unspecified state (see: [What can I do with a moved-from object?](http://stackoverflow.com/questions/7027523/what-can-i-do-with-a-moved-from-object)).
+`std::move` 表示传递给它的对象可以转移其资源。使用已被移动的对象时应小心，因为它们可能处于未指定的状态（参见：[我能对已移动的对象做什么？](http://stackoverflow.com/questions/7027523/what-can-i-do-with-a-moved-from-object)）。
 
-A definition of `std::move` (performing a move is nothing more than casting to an rvalue reference):
+`std::move` 的定义（执行移动不过是转换为右值引用）：
 ```c++
 template <typename T>
 typename remove_reference<T>::type&& move(T&& arg) {
@@ -732,18 +756,18 @@ typename remove_reference<T>::type&& move(T&& arg) {
 }
 ```
 
-Transferring `std::unique_ptr`s:
+转移 `std::unique_ptr`：
 ```c++
-std::unique_ptr<int> p1 {new int{0}};  // in practice, use std::make_unique
-std::unique_ptr<int> p2 = p1; // error -- cannot copy unique pointers
-std::unique_ptr<int> p3 = std::move(p1); // move `p1` into `p3`
-                                         // now unsafe to dereference object held by `p1`
+std::unique_ptr<int> p1 {new int{0}};  // 实践中，使用 std::make_unique
+std::unique_ptr<int> p2 = p1; // 错误 -- 不能拷贝 unique 指针
+std::unique_ptr<int> p3 = std::move(p1); // 将 `p1` 移动到 `p3`
+                                         // 现在解引用 `p1` 持有的对象是不安全的
 ```
 
 ### std::forward
-Returns the arguments passed to it while maintaining their value category and cv-qualifiers. Useful for generic code and factories. Used in conjunction with [`forwarding references`](#forwarding-references).
+返回传递给它的参数，同时保持它们的值类别和 cv 限定符。对于泛型代码和工厂很有用。与[转发引用](#forwarding-references)结合使用。
 
-A definition of `std::forward`:
+`std::forward` 的定义：
 ```c++
 template <typename T>
 T&& forward(typename remove_reference<T>::type& arg) {
@@ -751,7 +775,7 @@ T&& forward(typename remove_reference<T>::type& arg) {
 }
 ```
 
-An example of a function `wrapper` which just forwards other `A` objects to a new `A` object's copy or move constructor:
+一个函数 `wrapper` 的示例，它只是将其他 `A` 对象转发到新 `A` 对象的拷贝构造函数或移动构造函数：
 ```c++
 struct A {
   A() = default;
@@ -770,7 +794,7 @@ wrapper(a); // copied
 wrapper(std::move(a)); // moved
 ```
 
-See also: [`forwarding references`](#forwarding-references), [`rvalue references`](#rvalue-references).
+另请参阅：[转发引用](#forwarding-references)、[右值引用](#rvalue-references)。
 
 ### std::thread
 The `std::thread` library provides a standard way to control threads, such as spawning and killing them. In the example below, multiple threads are spawned to do different calculations and then the program waits for all of them to finish.

@@ -1687,81 +1687,81 @@ See the section on [smart pointers (C++11)](#smart-pointers) for more informatio
 
 ## C++11 Language Features
 
-### Move semantics
-Moving an object means to transfer ownership of some resource it manages to another object.
+### 移动语义（Move semantics）
+移动一个对象意味着将其管理的某些资源的所有权转移到另一个对象。
 
-The first benefit of move semantics is performance optimization. When an object is about to reach the end of its lifetime, either because it's a temporary or by explicitly calling `std::move`, a move is often a cheaper way to transfer resources. For example, moving a `std::vector` is just copying some pointers and internal state over to the new vector -- copying would involve having to copy every single contained element in the vector, which is expensive and unnecessary if the old vector will soon be destroyed.
+移动语义的第一个好处是性能优化。当一个对象即将到达其生命周期的末尾时，无论是因为它是一个临时对象，还是通过显式调用 `std::move`，移动通常是转移资源的更廉价的方式。例如，移动一个 `std::vector` 只是将一些指针和内部状态复制到新的 vector 中——而拷贝将涉及复制 vector 中的每个单独元素，如果旧 vector 很快就要被销毁，这既昂贵又不必要。
 
-Moves also make it possible for non-copyable types such as `std::unique_ptr`s ([smart pointers](#smart-pointers)) to guarantee at the language level that there is only ever one instance of a resource being managed at a time, while being able to transfer an instance between scopes.
+移动还使得不可拷贝的类型（如 `std::unique_ptr`（[智能指针](#smart-pointers)））能够在语言层面保证在任何时候只有一个资源实例被管理，同时能够在作用域之间转移实例。
 
-See the sections on: [rvalue references](#rvalue-references), [special member functions for move semantics](#special-member-functions-for-move-semantics), [`std::move`](#stdmove), [`std::forward`](#stdforward), [`forwarding references`](#forwarding-references).
+参见以下章节：[右值引用](#rvalue-references)、[移动语义的特殊成员函数](#special-member-functions-for-move-semantics)、[`std::move`](#stdmove)、[`std::forward`](#stdforward)、[转发引用](#forwarding-references)。
 
-### Rvalue references
-C++11 introduces a new reference termed the _rvalue reference_. An rvalue reference to `T`, which is a non-template type parameter (such as `int`, or a user-defined type), is created with the syntax `T&&`. Rvalue references only bind to rvalues.
+### 右值引用（Rvalue references）
+C++11 引入了一种新的引用，称为_右值引用_。对于非模板类型参数 `T`（如 `int` 或用户定义类型），右值引用使用语法 `T&&` 创建。右值引用只能绑定到右值。
 
-Type deduction with lvalues and rvalues:
+左值和右值的类型推导：
 ```c++
-int x = 0; // `x` is an lvalue of type `int`
-int& xl = x; // `xl` is an lvalue of type `int&`
-int&& xr = x; // compiler error -- `x` is an lvalue
-int&& xr2 = 0; // `xr2` is an lvalue of type `int&&` -- binds to the rvalue temporary, `0`
+int x = 0; // `x` 是类型为 `int` 的左值
+int& xl = x; // `xl` 是类型为 `int&` 的左值
+int&& xr = x; // 编译错误 -- `x` 是左值
+int&& xr2 = 0; // `xr2` 是类型为 `int&&` 的左值 -- 绑定到右值临时对象 `0`
 
 void f(int& x) {}
 void f(int&& x) {}
 
-f(x);  // calls f(int&)
-f(xl); // calls f(int&)
-f(3);  // calls f(int&&)
-f(std::move(x)); // calls f(int&&)
+f(x);  // 调用 f(int&)
+f(xl); // 调用 f(int&)
+f(3);  // 调用 f(int&&)
+f(std::move(x)); // 调用 f(int&&)
 
-f(xr2);           // calls f(int&)
-f(std::move(xr2)); // calls f(int&& x)
+f(xr2);           // 调用 f(int&)
+f(std::move(xr2)); // 调用 f(int&& x)
 ```
 
-See also: [`std::move`](#stdmove), [`std::forward`](#stdforward), [`forwarding references`](#forwarding-references).
+另请参阅：[`std::move`](#stdmove)、[`std::forward`](#stdforward)、[转发引用](#forwarding-references)。
 
-### Forwarding references
-Also known (unofficially) as _universal references_. A forwarding reference is created with the syntax `T&&` where `T` is a template type parameter, or using `auto&&`. This enables _perfect forwarding_: the ability to pass arguments while maintaining their value category (e.g. lvalues stay as lvalues, temporaries are forwarded as rvalues).
+### 转发引用（Forwarding references）
+也被（非正式地）称为_通用引用_。转发引用使用语法 `T&&` 创建，其中 `T` 是模板类型参数，或者使用 `auto&&`。这实现了_完美转发_：在保持参数值类别的同时传递参数的能力（例如，左值保持为左值，临时对象作为右值转发）。
 
-Forwarding references allow a reference to bind to either an lvalue or rvalue depending on the type. Forwarding references follow the rules of _reference collapsing_:
-* `T& &` becomes `T&`
-* `T& &&` becomes `T&`
-* `T&& &` becomes `T&`
-* `T&& &&` becomes `T&&`
+转发引用允许引用根据类型绑定到左值或右值。转发引用遵循_引用折叠_规则：
+* `T& &` 变为 `T&`
+* `T& &&` 变为 `T&`
+* `T&& &` 变为 `T&`
+* `T&& &&` 变为 `T&&`
 
-`auto` type deduction with lvalues and rvalues:
+使用 `auto` 进行左值和右值的类型推导：
 ```c++
-int x = 0; // `x` is an lvalue of type `int`
-auto&& al = x; // `al` is an lvalue of type `int&` -- binds to the lvalue, `x`
-auto&& ar = 0; // `ar` is an lvalue of type `int&&` -- binds to the rvalue temporary, `0`
+int x = 0; // `x` 是类型为 `int` 的左值
+auto&& al = x; // `al` 是类型为 `int&` 的左值 -- 绑定到左值 `x`
+auto&& ar = 0; // `ar` 是类型为 `int&&` 的左值 -- 绑定到右值临时对象 `0`
 ```
 
-Template type parameter deduction with lvalues and rvalues:
+使用模板类型参数进行左值和右值的类型推导：
 ```c++
-// Since C++14 or later:
+// 自 C++14 或更高版本起：
 void f(auto&& t) {
   // ...
 }
 
-// Since C++11 or later:
+// 自 C++11 或更高版本起：
 template <typename T>
 void f(T&& t) {
   // ...
 }
 
 int x = 0;
-f(0); // T is int, deduces as f(int &&) => f(int&&)
-f(x); // T is int&, deduces as f(int& &&) => f(int&)
+f(0); // T 是 int，推导为 f(int &&) => f(int&&)
+f(x); // T 是 int&，推导为 f(int& &&) => f(int&)
 
 int& y = x;
-f(y); // T is int&, deduces as f(int& &&) => f(int&)
+f(y); // T 是 int&，推导为 f(int& &&) => f(int&)
 
-int&& z = 0; // NOTE: `z` is an lvalue with type `int&&`.
-f(z); // T is int&, deduces as f(int& &&) => f(int&)
-f(std::move(z)); // T is int, deduces as f(int &&) => f(int&&)
+int&& z = 0; // 注意：`z` 是类型为 `int&&` 的左值。
+f(z); // T 是 int&，推导为 f(int& &&) => f(int&)
+f(std::move(z)); // T 是 int，推导为 f(int &&) => f(int&&)
 ```
 
-See also: [`std::move`](#stdmove), [`std::forward`](#stdforward), [`rvalue references`](#rvalue-references).
+另请参阅：[`std::move`](#stdmove)、[`std::forward`](#stdforward)、[右值引用](#rvalue-references)。
 
 ### Variadic templates
 The `...` syntax creates a _parameter pack_ or expands one. A template _parameter pack_ is a template parameter that accepts zero or more template arguments (non-types, types, or templates). A template with at least one parameter pack is called a _variadic template_.

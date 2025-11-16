@@ -297,7 +297,8 @@ add(1, 2.0); // `decltype(x + y)` => `decltype(3.0)` => `double`
 See also: [`decltype(auto) (C++14)`](README.md#decltypeauto).
 
 ### Type aliases
-Semantically similar to using a `typedef` however, type aliases with `using` are easier to read and are compatible with templates.
+类型别名
+与使用 typedef 的语义类似，不过用 using 创建的类型别名更易阅读，也能很好地配合模板。
 ```c++
 template <typename T>
 using Vec = std::vector<T>;
@@ -317,9 +318,10 @@ foo(nullptr); // calls foo(char*)
 ```
 
 ### Strongly-typed enums
-Type-safe enums that solve a variety of problems with C-style enums including: implicit conversions, inability to specify the underlying type, scope pollution.
+提供类型安全的枚举，解决了 C 风格枚举的多个问题，包括：隐式转换、无法指定底层类型以及枚举成员在全局作用域中的命名冲突。
 ```c++
 // Specifying underlying type as `unsigned int`
+// 指定底层类型用unsigned int，但是不能直接和unsigned int进行比较
 enum class Color : unsigned int { Red = 0xff0000, Green = 0xff00, Blue = 0xff };
 // `Red`/`Green` in `Alert` don't conflict with `Color`
 enum class Alert : bool { Red, Green };
@@ -328,8 +330,10 @@ Color c = Color::Red;
 
 ### Attributes
 Attributes provide a universal syntax over `__attribute__(...)`, `__declspec`, etc.
+属性（Attributes）提供了一种统一语法，取代了 __attribute__(...)、__declspec 等编译器自定义扩展。
 ```c++
 // `noreturn` attribute indicates `f` doesn't return.
+// 用来告诉编译器函数f永远不会正常返回
 [[ noreturn ]] void f() {
   throw "error";
 }
